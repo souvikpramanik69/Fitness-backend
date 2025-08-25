@@ -1,0 +1,14 @@
+spring:
+  application:
+   name: activity-service
+  data:
+   mongodb:
+     uri: mongodb://localhost:27017/activity-fitness
+     database: ActivityType
+  devtools:
+    add-properties: true
+
+server:
+  port: 8008
+
+

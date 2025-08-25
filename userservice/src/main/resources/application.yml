@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: user-service
+  datasource:
+    username: postgres
+    password: Souvikp683@
+    url: jdbc:postgresql://localhost:5432/fitness_user_db
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  output:
+    ansi:
+      enabled: ALWAYS
+server:
+  port: 8006
