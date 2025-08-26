@@ -11,4 +11,8 @@ spring:
 server:
   port: 8008
 
+logging:
+  level:
+    io.netty.resolver.dns: OFF
+
 

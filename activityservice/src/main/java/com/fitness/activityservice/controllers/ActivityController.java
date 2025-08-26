@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -21,27 +22,34 @@ public class ActivityController {
 
    private final ActivityServiceImpl activityService;
 
-   @PostMapping("/activities")
-   public ResponseEntity<ApiResponse<Object, ActivityDto>> trackActivity (@RequestBody ActivityPayload payload){
-        ApiResponse<Object,ActivityDto> response;
-       try{
-           System.out.println("Calling Api");
-           Activity result = activityService.trackActivity(payload);
-           if(result != null){
-               response = new ApiResponse<Object,ActivityDto>(Status.SUCCESS,201,"Activity added successfully", ActivityMapper.mapToDto(result));
-               return new ResponseEntity<ApiResponse<Object,ActivityDto>>(response,HttpStatus.CREATED);
-           }
-           else {
-               response = new ApiResponse<Object,ActivityDto>(Status.ERROR,404,"User doesn't exist");
-               return new ResponseEntity<ApiResponse<Object,ActivityDto>>(response,HttpStatus.CREATED);
-           }
+    @PostMapping("/activities")
+    public Mono<ResponseEntity<ApiResponse<Object, ActivityDto>>> trackActivity(@RequestBody ActivityPayload payload) {
+        return activityService.trackActivity(payload)
+                .map(activity -> {
+                    ApiResponse<Object, ActivityDto> response = new ApiResponse<>(
+                            Status.SUCCESS,
+                            201,
+                            "Activity added successfully",
+                            ActivityMapper.mapToDto(activity)
+                    );
+                    return new ResponseEntity<>(response, HttpStatus.CREATED);
+                })
+                .switchIfEmpty(Mono.just(
+                        new ResponseEntity<>(
+                                new ApiResponse<>(Status.ERROR, 404, "User doesn't exist"),
+                                HttpStatus.NOT_FOUND
+                        )
+                ))
+                .onErrorResume(e -> {
+                    ApiResponse<Object, ActivityDto> response = new ApiResponse<>(
+                            Status.ERROR,
+                            500,
+                            e.getMessage()
+                    );
+                    return Mono.just(new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR));
+                });
+    }
 
-
-       }catch (Exception e){
-           response = new ApiResponse<Object,ActivityDto>(Status.ERROR,500,e.getMessage());
-           return new ResponseEntity<ApiResponse<Object,ActivityDto>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
-       }
-   }
 
    @GetMapping("/user/activity")
    public ResponseEntity<ApiResponse<Object, List<ActivityDto>>> getActivityByUserID

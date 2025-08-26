@@ -9,6 +9,7 @@ import com.fitness.activityservice.services.UserValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,28 +25,52 @@ public class ActivityServiceImpl implements ActivityService {
 
 //    ============== Implementing Rabbitmq ================
 
+//
+//    public Activity trackActivity(ActivityPayload payload){
+//
+//        boolean isUserExist = userValidationService.validateUser(payload.getUserId());
+//        if(isUserExist){
+//            Activity activity = Activity.builder()
+//                    .id(UUID.randomUUID().toString())
+//                    .type(payload.getType())
+//                    .caloriesBurned(payload.getCaloriesBurned())
+//                    .Duration(payload.getDuration())
+//                    .startTime(payload.getStartTime())
+//                    .userId(payload.getUserId())
+//                    .addtionalMetrics(payload.getAdditionalMetrics())
+//                    .createdAt(LocalDateTime.now())
+//                    .updatedAt(LocalDateTime.now())
+//                    .build();
+//            return repositories.save(activity);
+//        }
+//        return null;
+//
+//
+//    }
 
-    public Activity trackActivity(ActivityPayload payload){
+    public Mono<Activity> trackActivity(ActivityPayload payload) {
+        return userValidationService.validateUser(payload.getUserId())
+                .flatMap(isUserExist -> {
+                    if (isUserExist) {
+                        Activity activity = Activity.builder()
+                                .id(UUID.randomUUID().toString())
+                                .type(payload.getType())
+                                .caloriesBurned(payload.getCaloriesBurned())
+                                .Duration(payload.getDuration())
+                                .startTime(payload.getStartTime())
+                                .userId(payload.getUserId())
+                                .addtionalMetrics(payload.getAdditionalMetrics())
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build();
 
-        boolean isUserExist = userValidationService.validateUser(payload.getUserId());
-        if(isUserExist){
-            Activity activity = Activity.builder()
-                    .id(UUID.randomUUID().toString())
-                    .type(payload.getType())
-                    .caloriesBurned(payload.getCaloriesBurned())
-                    .Duration(payload.getDuration())
-                    .startTime(payload.getStartTime())
-                    .userId(payload.getUserId())
-                    .addtionalMetrics(payload.getAdditionalMetrics())
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-            return repositories.save(activity);
-        }
-        return null;
-
-
+                        return Mono.fromCallable(() -> repositories.save(activity));
+                    } else {
+                        return Mono.empty();
+                    }
+                });
     }
+
 
     public List<Activity> getActivityByUserId(String userId){
         List<Activity> activityList =  repositories.findByUserId(userId);
