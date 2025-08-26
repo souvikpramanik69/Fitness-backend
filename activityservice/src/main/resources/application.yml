@@ -11,8 +11,13 @@ spring:
 server:
   port: 8008
 
-logging:
-  level:
-    io.netty.resolver.dns: OFF
+rabbitmq:
+  queue:
+    name: activity.queue
+  exchange:
+    name: activity.exchange
+  routing:
+    key: activity.tracking
+
 
 

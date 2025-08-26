@@ -20,7 +20,6 @@ public class UserValidationService {
              return userServiceWebClient.get()
                      .uri("/api/user/{userId}/validate", userId)
                      .retrieve().bodyToMono(Boolean.class).onErrorResume(WebClientResponseException.class, e -> {
-                         System.err.println("Error in User Validation Service " + e);
                          if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                              return Mono.error(new RuntimeException("User doesn't exist"));
                          } else if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {

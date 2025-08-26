@@ -22,32 +22,6 @@ public class ActivityServiceImpl implements ActivityService {
     private final ActivityRepositories repositories;
     private final UserValidationService userValidationService;
 
-
-//    ============== Implementing Rabbitmq ================
-
-//
-//    public Activity trackActivity(ActivityPayload payload){
-//
-//        boolean isUserExist = userValidationService.validateUser(payload.getUserId());
-//        if(isUserExist){
-//            Activity activity = Activity.builder()
-//                    .id(UUID.randomUUID().toString())
-//                    .type(payload.getType())
-//                    .caloriesBurned(payload.getCaloriesBurned())
-//                    .Duration(payload.getDuration())
-//                    .startTime(payload.getStartTime())
-//                    .userId(payload.getUserId())
-//                    .addtionalMetrics(payload.getAdditionalMetrics())
-//                    .createdAt(LocalDateTime.now())
-//                    .updatedAt(LocalDateTime.now())
-//                    .build();
-//            return repositories.save(activity);
-//        }
-//        return null;
-//
-//
-//    }
-
     public Mono<Activity> trackActivity(ActivityPayload payload) {
         return userValidationService.validateUser(payload.getUserId())
                 .flatMap(isUserExist -> {

@@ -13,17 +13,17 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitmqConfig {
 
 
-//    @Value("${rabbitmq.queue.name}")
-//    private String queue;
-//
-//    @Bean
-//    public Queue activityQueue(){
-//         return new Queue(queue,true);
-//    }
-//
-//    @Bean
-//    public MessageConverter jsonMessageConverter(){
-//       return new Jackson2JsonMessageConverter();
-//    }
+    @Value("${rabbitmq.queue.name}")
+    private String queue;
+
+    @Bean
+    public Queue activityQueue(){
+         return new Queue(queue,true);
+    }
+
+    @Bean
+    public MessageConverter jsonMessageConverter(){
+       return new Jackson2JsonMessageConverter();
+    }
 
 }
